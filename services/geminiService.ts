@@ -86,7 +86,7 @@ const processImage = async (
 };
 
 const processText = async (textContent: string): Promise<RawExtractionItem[]> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("API Key is missing. Please check your environment configuration.");
   }
@@ -223,7 +223,7 @@ const harmonizeColumnNames = (rows: RawExtractionItem[]): RawExtractionItem[] =>
 };
 
 const processMessyTextList = async (rawText: string, brandHint?: string): Promise<RawExtractionItem[]> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("API Key is missing. Please check your environment configuration.");
   }
