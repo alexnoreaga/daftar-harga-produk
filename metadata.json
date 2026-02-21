@@ -1,0 +1,5 @@
+{
+  "name": "Daftar Harga Produk",
+  "description": "Aplikasi daftar harga produk per merek. Import PDF, gambar, atau teks, simpan SRP dan harga modal, lalu hitung margin secara otomatis.",
+  "requestFramePermissions": []
+}
