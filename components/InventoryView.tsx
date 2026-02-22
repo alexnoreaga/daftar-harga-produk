@@ -382,20 +382,20 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 <p className="text-slate-500 font-medium">No products found</p>
               </div>
             ) : (
-              <table className="w-full text-xs">
+              <table className="w-full min-w-[640px] text-xs">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    <th className="px-3 py-2 text-left font-semibold text-slate-700">Product</th>
-                    <th className="px-3 py-2 text-right font-semibold text-slate-700">Harga Modal</th>
-                    <th className="px-3 py-2 text-right font-semibold text-slate-700">Profit</th>
-                    <th className="px-3 py-2 text-center font-semibold text-slate-700">Margin</th>
-                    <th className="px-3 py-2 text-center font-semibold text-slate-700">Action</th>
+                    <th className="px-3 py-1.5 text-left font-semibold text-slate-700 w-[38%]">Product</th>
+                    <th className="px-3 py-1.5 text-right font-semibold text-slate-700 whitespace-nowrap">Harga Modal</th>
+                    <th className="px-3 py-1.5 text-right font-semibold text-slate-700 whitespace-nowrap">Profit</th>
+                    <th className="px-3 py-1.5 text-center font-semibold text-slate-700 whitespace-nowrap">Margin</th>
+                    <th className="px-3 py-1.5 text-center font-semibold text-slate-700 whitespace-nowrap">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {products.map((product) => (
                     <tr key={product.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-1.5 align-middle">
                         {editingId === product.id ? (
                           <div className="space-y-1">
                             <input
@@ -412,13 +412,13 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                             />
                           </div>
                         ) : (
-                          <div>
-                            <p className="font-semibold text-slate-900">{product.name}</p>
-                            <p className="text-slate-500 text-xs">{product.brand}</p>
+                          <div className="leading-tight">
+                            <p className="font-semibold text-slate-900 whitespace-nowrap overflow-hidden text-ellipsis">{product.name}</p>
+                            <p className="text-slate-500 text-xs whitespace-nowrap overflow-hidden text-ellipsis mt-0.5">{product.brand}</p>
                           </div>
                         )}
                       </td>
-                      <td className="px-3 py-2 text-right">
+                      <td className="px-3 py-1.5 text-right align-middle whitespace-nowrap">
                         {editingId === product.id ? (
                           <input
                             type="number"
@@ -430,7 +430,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                           <span className="font-semibold text-slate-900 text-xs">{formatIDR(product.costPrice)}</span>
                         )}
                       </td>
-                      <td className="px-3 py-2 text-right">
+                      <td className="px-3 py-1.5 text-right align-middle whitespace-nowrap">
                         {(() => {
                           if (product.srpPrice === 0) {
                             return <span className="font-semibold text-slate-400 text-xs">—</span>;
@@ -441,7 +441,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                           }`}>{formatIDR(profit)}</span>;
                         })()}
                       </td>
-                      <td className="px-3 py-2 text-center">
+                      <td className="px-3 py-1.5 text-center align-middle whitespace-nowrap">
                         {(() => {
                           if (product.srpPrice === 0) {
                             return <span className="text-slate-400 text-xs">—</span>;
@@ -457,7 +457,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                           );
                         })()}
                       </td>
-                      <td className="px-3 py-2 text-center">
+                      <td className="px-3 py-1.5 text-center align-middle whitespace-nowrap">
                         {editingId === product.id ? (
                           <div className="flex gap-1 justify-center">
                             <button
