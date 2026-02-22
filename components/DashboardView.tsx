@@ -13,6 +13,7 @@ interface DashboardViewProps {
   onUpdateBrandNote: (noteId: string, note: string) => void;
   onDeleteBrandNote: (noteId: string) => void;
   onDeleteBrand: (brandName: string) => void;
+  onAdjustBrandPrices: (brandName: string, percentage: number, targetColumn: 'costPrice' | 'srpPrice') => void;
   deleteBrandProgress: {
     brandName: string;
     processed: number;
@@ -31,12 +32,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onUpdateBrandNote,
   onDeleteBrandNote,
   onDeleteBrand,
+  onAdjustBrandPrices,
   deleteBrandProgress,
 }) => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
   const [selectedBrandForNote, setSelectedBrandForNote] = useState<string | null>(null);
   const [newNoteText, setNewNoteText] = useState('');
+  const [adjustBrandModalBrand, setAdjustBrandModalBrand] = useState<string | null>(null);
+  const [adjustBrandTargetColumn, setAdjustBrandTargetColumn] = useState<'costPrice' | 'srpPrice'>('costPrice');
+  const [adjustBrandPercentageInput, setAdjustBrandPercentageInput] = useState('');
   const { isAdmin } = useAuth();
   const totalItems = totalProducts;
   const avgCost = totalItems > 0 ? totalValue / totalItems : 0;
@@ -45,7 +50,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     : 0;
 
   const sortedBrandCounts = Object.entries(brandCounts)
-    .sort((a, b) => b[1] - a[1]);
+    .sort((a, b) => a[0].localeCompare(b[0]));
 
   const formatIDR = (val: number) => {
     return val.toLocaleString('id-ID', {
@@ -54,6 +59,39 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     });
+  };
+
+  const formatDate = (isoDate: string) => {
+    if (!isoDate) return '—';
+    try {
+      const date = new Date(isoDate);
+      return date.toLocaleDateString('id-ID', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+    } catch {
+      return '—';
+    }
+  };
+
+  const closeAdjustBrandModal = () => {
+    setAdjustBrandModalBrand(null);
+    setAdjustBrandTargetColumn('costPrice');
+    setAdjustBrandPercentageInput('');
+  };
+
+  const submitAdjustBrand = () => {
+    if (!adjustBrandModalBrand) return;
+
+    const percentage = Number(adjustBrandPercentageInput.replace(',', '.').trim());
+    if (!Number.isFinite(percentage) || percentage === 0) {
+      alert('Please enter a valid percentage (example: 5 or -5).');
+      return;
+    }
+
+    onAdjustBrandPrices(adjustBrandModalBrand, percentage, adjustBrandTargetColumn);
+    closeAdjustBrandModal();
   };
 
   return (
@@ -192,7 +230,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
                   ) : (
                     <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
-                      {sortedBrandCounts.map(([brand, count]) => (
+                      {sortedBrandCounts.map(([brand, count]) => {
+                        const brandNote = brandNotes.find(bn => bn.brandName === brand);
+                        return (
                         <div
                           key={brand}
                           className="px-6 py-3 hover:bg-slate-50 transition-colors flex items-center justify-between group"
@@ -204,11 +244,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             <p className="font-semibold text-slate-900 hover:text-brand-600 transition-colors truncate">
                               {brand}
                             </p>
+                            {brandNote && (
+                              <p className="text-xs text-slate-500 mt-0.5">
+                                {formatDate(brandNote.createdAt)}
+                              </p>
+                            )}
                           </button>
                           <div className="flex items-center gap-4 ml-4">
                             <span className="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full whitespace-nowrap">
                               {count}
                             </span>
+                            {isAdmin && (
+                              <button
+                                onClick={() => {
+                                  setAdjustBrandModalBrand(brand);
+                                  setAdjustBrandTargetColumn('costPrice');
+                                  setAdjustBrandPercentageInput('');
+                                }}
+                                disabled={Boolean(deleteBrandProgress)}
+                                className="text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50 p-1"
+                                title="Adjust one price column by %"
+                              >
+                                <i className="fa-solid fa-percent text-sm"></i>
+                              </button>
+                            )}
                             {isAdmin && (
                               <button
                                 onClick={() => {
@@ -224,7 +283,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             )}
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -384,6 +444,70 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
       </div>
+
+      {adjustBrandModalBrand && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Adjust Brand Price</h3>
+                <p className="text-xs text-slate-500 truncate">{adjustBrandModalBrand}</p>
+              </div>
+              <button
+                type="button"
+                onClick={closeAdjustBrandModal}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <i className="fa-solid fa-times"></i>
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">Price Column</label>
+                <select
+                  value={adjustBrandTargetColumn}
+                  onChange={(e) => setAdjustBrandTargetColumn(e.target.value as 'costPrice' | 'srpPrice')}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"
+                >
+                  <option value="costPrice">Base Price (Harga Modal)</option>
+                  <option value="srpPrice">SRP Price</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">Percentage</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder="e.g. 5 or -5"
+                  value={adjustBrandPercentageInput}
+                  onChange={(e) => setAdjustBrandPercentageInput(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"
+                />
+                <p className="mt-1 text-xs text-slate-500">Use positive for increase, negative for decrease.</p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={closeAdjustBrandModal}
+                  className="px-3.5 py-2 text-slate-700 font-medium hover:bg-slate-100 rounded-lg text-sm transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={submitAdjustBrand}
+                  className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 text-sm transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

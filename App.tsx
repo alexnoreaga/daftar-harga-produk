@@ -635,6 +635,76 @@ const App: React.FC = () => {
     }
   };
 
+  const handleAdjustBrandPrices = async (
+    brandName: string,
+    percentage: number,
+    targetColumn: 'costPrice' | 'srpPrice'
+  ) => {
+    try {
+      if (!Number.isFinite(percentage) || percentage === 0) {
+        alert('Please enter a valid percentage.');
+        return;
+      }
+
+      const targetLabel = targetColumn === 'costPrice' ? 'Base Price' : 'SRP Price';
+      const actionLabel = percentage > 0 ? 'increase' : 'decrease';
+
+      const confirmed = window.confirm(
+        `Apply ${Math.abs(percentage)}% ${actionLabel} to ${targetLabel} for all products in brand ${brandName}?`
+      );
+      if (!confirmed) return;
+
+      const normalizedTarget = normalizeBrand(brandName);
+      const multiplier = 1 + (percentage / 100);
+      const MAX_BATCH_SIZE = 450;
+
+      const productsSnapshot = await getDocs(collection(db, 'products'));
+      let batch = writeBatch(db);
+      let operationCount = 0;
+      let updatedCount = 0;
+
+      for (const itemDoc of productsSnapshot.docs) {
+        const data = itemDoc.data();
+        const itemBrand = normalizeBrand(typeof data.brand === 'string' ? data.brand : '');
+        if (itemBrand !== normalizedTarget) continue;
+
+        const currentCost = typeof data.costPrice === 'number' ? data.costPrice : Number(data.costPrice) || 0;
+        const currentSrp = typeof data.srpPrice === 'number' ? data.srpPrice : Number(data.srpPrice) || 0;
+
+        const updates: { costPrice?: number; srpPrice?: number; lastUpdated: ReturnType<typeof serverTimestamp> } = {
+          lastUpdated: serverTimestamp(),
+        };
+
+        if (targetColumn === 'costPrice') {
+          updates.costPrice = Math.max(0, Math.round(currentCost * multiplier));
+        } else {
+          updates.srpPrice = Math.max(0, Math.round(currentSrp * multiplier));
+        }
+
+        batch.update(doc(db, 'products', itemDoc.id), updates);
+
+        operationCount++;
+        updatedCount++;
+
+        if (operationCount >= MAX_BATCH_SIZE) {
+          await batch.commit();
+          batch = writeBatch(db);
+          operationCount = 0;
+        }
+      }
+
+      if (operationCount > 0) {
+        await batch.commit();
+      }
+
+      await refreshCurrentPage();
+      alert(`Updated ${updatedCount} products for brand ${brandName} (${targetLabel}, ${percentage}%).`);
+    } catch (error) {
+      console.error('Error adjusting brand prices:', error);
+      alert('Failed to adjust brand prices.');
+    }
+  };
+
   const handleExtractionComplete = (data: RawExtractionItem[]) => {
     setExtractedData(data);
     setShowMappingModal(true);
@@ -775,6 +845,19 @@ const App: React.FC = () => {
         console.log(`Successfully processed batch.`);
       }
 
+      // Ensure brand metadata exists
+      const brandName = mapping.brandName;
+      const existingBrandNote = brandNotes.find(bn => bn.brandName === brandName);
+      if (!existingBrandNote) {
+        await addDoc(collection(db, 'brandNotes'), {
+          brandName,
+          note: '',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        await fetchBrandNotes();
+      }
+
       setShowMappingModal(false);
       setExtractedData([]);
       setCurrentView(AppView.INVENTORY);
@@ -817,6 +900,19 @@ const App: React.FC = () => {
           lastUpdated: serverTimestamp(),
           searchKeywords: buildSearchKeywords(newProductData.name, newProductData.brand),
         });
+      }
+
+      // Ensure brand metadata exists
+      const brandName = newProductData.brand;
+      const existingBrandNote = brandNotes.find(bn => bn.brandName === brandName);
+      if (!existingBrandNote) {
+        await addDoc(collection(db, 'brandNotes'), {
+          brandName,
+          note: '',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        await fetchBrandNotes();
       }
 
       await refreshCurrentPage();
@@ -942,6 +1038,7 @@ const App: React.FC = () => {
             onUpdateBrandNote={handleUpdateBrandNote}
             onDeleteBrandNote={handleDeleteBrandNote}
             onDeleteBrand={handleDeleteBrand}
+            onAdjustBrandPrices={handleAdjustBrandPrices}
             deleteBrandProgress={deleteBrandProgress}
           />
         );

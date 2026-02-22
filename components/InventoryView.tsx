@@ -67,6 +67,20 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
     });
   };
 
+  const formatDate = (isoDate: string) => {
+    if (!isoDate) return '—';
+    try {
+      const date = new Date(isoDate);
+      return date.toLocaleDateString('id-ID', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+    } catch {
+      return '—';
+    }
+  };
+
   const getMarginStats = (cost: number, sell: number) => {
     const profit = sell - cost;
     const margin = sell > 0 ? (profit / sell) * 100 : 0;
@@ -248,7 +262,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                         ) : (
                           <div>
                             <p className="font-semibold text-slate-900 text-sm">{product.name}</p>
-                            <p className="text-xs text-slate-500 mt-1">{product.id.substring(0, 8)}</p>
+                            <p className="text-xs text-slate-500 mt-1">{formatDate(product.lastUpdated)}</p>
                           </div>
                         )}
                       </td>
