@@ -247,6 +247,11 @@ const App: React.FC = () => {
     return normalized || 'unknown';
   };
 
+  const formatBrandName = (value?: string | null): string => {
+    const compacted = (value || '').trim().replace(/\s+/g, ' ');
+    return compacted ? compacted.toUpperCase() : 'UNKNOWN';
+  };
+
   const matchesFilters = (product: Product, brandFilter: string | null, keyword: string): boolean => {
     const trimmedKeyword = keyword.trim();
     const normalizedFilter = brandFilter ? normalizeBrand(brandFilter) : '';
@@ -514,8 +519,10 @@ const App: React.FC = () => {
 
   const handleAddBrandNote = async (brandName: string, note: string) => {
     try {
+      const formattedBrandName = formatBrandName(brandName);
       // Check if note already exists for this brand
-      const existing = brandNotes.find(bn => bn.brandName === brandName);
+      const normalizedTarget = normalizeBrand(formattedBrandName);
+      const existing = brandNotes.find(bn => normalizeBrand(bn.brandName) === normalizedTarget);
       if (existing) {
         await updateDoc(doc(db, 'brandNotes', existing.id), {
           note,
@@ -523,7 +530,7 @@ const App: React.FC = () => {
         });
       } else {
         await addDoc(collection(db, 'brandNotes'), {
-          brandName,
+          brandName: formattedBrandName,
           note,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
@@ -746,6 +753,8 @@ const App: React.FC = () => {
       return fallbackKey ? normalizeText(item[fallbackKey]) : '';
     };
 
+    const formattedBrandName = formatBrandName(mapping.brandName);
+
     // Transform raw data
     const incomingItems = extractedData.map((item, index) => {
       const cleanPrice = (val: string | number) => {
@@ -777,7 +786,7 @@ const App: React.FC = () => {
         name: productName,
         costPrice: manualCost > 0 ? manualCost : cleanPrice(priceRaw),
         srpPrice: manualSrp > 0 ? manualSrp : cleanPrice(srpRaw),
-        brand: mapping.brandName,
+        brand: formattedBrandName,
         rawJson: item
       };
     }).filter(p => p.name && p.costPrice > 0);
@@ -846,8 +855,8 @@ const App: React.FC = () => {
       }
 
       // Ensure brand metadata exists
-      const brandName = mapping.brandName;
-      const existingBrandNote = brandNotes.find(bn => bn.brandName === brandName);
+      const brandName = formattedBrandName;
+      const existingBrandNote = brandNotes.find(bn => normalizeBrand(bn.brandName) === normalizeBrand(brandName));
       if (!existingBrandNote) {
         await addDoc(collection(db, 'brandNotes'), {
           brandName,
@@ -876,6 +885,7 @@ const App: React.FC = () => {
   const handleAddProduct = async (newProductData: { name: string; brand: string; costPrice: number; srpPrice?: number }) => {
     try {
       const normalizedName = newProductData.name.trim();
+      const formattedBrandName = formatBrandName(newProductData.brand);
       const duplicateCheckQuery = query(collection(db, 'products'), where('name', '==', normalizedName), limit(1));
       const duplicateCheckSnapshot = await getDocs(duplicateCheckQuery);
       const existingDoc = duplicateCheckSnapshot.docs[0];
@@ -886,25 +896,25 @@ const App: React.FC = () => {
         await updateDoc(ref, {
           costPrice: newProductData.costPrice,
           srpPrice: newProductData.srpPrice || 0,
-          brand: newProductData.brand,
+          brand: formattedBrandName,
           lastUpdated: serverTimestamp(),
-          searchKeywords: buildSearchKeywords(newProductData.name, newProductData.brand),
+          searchKeywords: buildSearchKeywords(newProductData.name, formattedBrandName),
         });
       } else {
         // Create new
         await addDoc(collection(db, 'products'), {
           name: newProductData.name,
-          brand: newProductData.brand,
+          brand: formattedBrandName,
           costPrice: newProductData.costPrice,
           srpPrice: newProductData.srpPrice || 0,
           lastUpdated: serverTimestamp(),
-          searchKeywords: buildSearchKeywords(newProductData.name, newProductData.brand),
+          searchKeywords: buildSearchKeywords(newProductData.name, formattedBrandName),
         });
       }
 
       // Ensure brand metadata exists
-      const brandName = newProductData.brand;
-      const existingBrandNote = brandNotes.find(bn => bn.brandName === brandName);
+      const brandName = formattedBrandName;
+      const existingBrandNote = brandNotes.find(bn => normalizeBrand(bn.brandName) === normalizeBrand(brandName));
       if (!existingBrandNote) {
         await addDoc(collection(db, 'brandNotes'), {
           brandName,
@@ -924,14 +934,15 @@ const App: React.FC = () => {
 
   const handleUpdateProduct = async (updated: Product) => {
     try {
+      const formattedBrandName = formatBrandName(updated.brand);
       const ref = doc(db, 'products', updated.id);
       await updateDoc(ref, {
         name: updated.name,
-        brand: updated.brand,
+        brand: formattedBrandName,
         costPrice: updated.costPrice,
         srpPrice: updated.srpPrice || 0,
         lastUpdated: serverTimestamp(),
-        searchKeywords: buildSearchKeywords(updated.name, updated.brand),
+        searchKeywords: buildSearchKeywords(updated.name, formattedBrandName),
       });
       await refreshCurrentPage();
     } catch (e) {
