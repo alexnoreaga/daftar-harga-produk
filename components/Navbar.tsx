@@ -22,9 +22,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onChangeView }) => 
     <>
       {/* Header - Desktop & Mobile */}
       <header className="bg-dark-900 text-white shadow-lg sticky top-0 z-40">
-        <div className="px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
+        <div className="px-3 py-2.5 sm:px-6 sm:py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-lg sm:text-2xl font-bold text-brand-500 tracking-wider flex items-center gap-2">
+            <h1 className="text-base sm:text-2xl font-bold text-brand-500 tracking-wide sm:tracking-wider flex items-center gap-1.5 sm:gap-2">
               <i className="fa-solid fa-camera-retro"></i>
               <span>Daftar Harga Produk</span>
             </h1>
@@ -61,15 +61,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onChangeView }) => 
             <button
               key={item.id}
               onClick={() => onChangeView(item.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors duration-200 ${
+              className={`flex-1 flex flex-col items-center justify-center py-2 transition-colors duration-200 ${
                 currentView === item.id
                   ? 'text-brand-500 bg-dark-800'
                   : 'text-gray-400 hover:text-white'
               }`}
               title={item.label}
             >
-              <i className={`fa-solid ${item.icon} text-xl mb-1`}></i>
-              <span className="text-xs font-semibold">{item.label}</span>
+              <i className={`fa-solid ${item.icon} text-lg mb-0.5`}></i>
+              <span className="text-[11px] font-semibold leading-tight">{item.label}</span>
             </button>
           ))}
         </div>

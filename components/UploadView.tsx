@@ -184,7 +184,7 @@ export const UploadView: React.FC<UploadViewProps> = ({ onExtractionComplete }) 
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto">
       {isBusy && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center px-4">
           <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-slate-200">
@@ -224,20 +224,20 @@ export const UploadView: React.FC<UploadViewProps> = ({ onExtractionComplete }) 
           </div>
         </div>
       )}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">Import Price List</h2>
-        <p className="text-gray-500 mt-2">Upload files or paste text directly for AI-powered extraction.</p>
+      <div className="mb-5 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Import Price List</h2>
+        <p className="text-sm sm:text-base text-gray-500 mt-1.5 sm:mt-2">Upload files or paste text directly for AI-powered extraction.</p>
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex gap-2 mb-6 border-b border-gray-200">
+      <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-6 border-b border-gray-200">
         <button
           onClick={() => {
             setActiveTab('file');
             setStatus({ state: 'idle' });
             setPreview(null);
           }}
-          className={`px-6 py-3 font-medium transition-colors relative ${
+          className={`px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-medium transition-colors relative ${
             activeTab === 'file'
               ? 'text-brand-600 border-b-2 border-brand-600'
               : 'text-gray-500 hover:text-gray-700'
@@ -252,7 +252,7 @@ export const UploadView: React.FC<UploadViewProps> = ({ onExtractionComplete }) 
             setStatus({ state: 'idle' });
             setPreview(null);
           }}
-          className={`px-6 py-3 font-medium transition-colors relative ${
+          className={`px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-medium transition-colors relative ${
             activeTab === 'text'
               ? 'text-brand-600 border-b-2 border-brand-600'
               : 'text-gray-500 hover:text-gray-700'
@@ -263,7 +263,7 @@ export const UploadView: React.FC<UploadViewProps> = ({ onExtractionComplete }) 
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-8">
         
         {activeTab === 'file' ? (
           // FILE UPLOAD TAB

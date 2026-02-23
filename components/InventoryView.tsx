@@ -136,16 +136,16 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 sticky top-16 z-20">
+      <div className="bg-white border-b border-slate-200 px-3 sm:px-6 lg:px-8 py-4 sm:py-8 sticky top-16 z-20">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <div className="flex items-end gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+            <div className="flex items-end gap-2.5 sm:gap-3">
               <div className="p-2 bg-indigo-100 rounded-lg">
-                <i className="fa-solid fa-cube text-indigo-600 text-lg"></i>
+                <i className="fa-solid fa-cube text-indigo-600 text-base sm:text-lg"></i>
               </div>
               <div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Products</h2>
-                <p className="text-sm text-slate-600">Showing {startItem} - {endItem} of {totalProducts}</p>
+                <h2 className="text-2xl max-[360px]:text-xl sm:text-4xl font-bold text-slate-900">Products</h2>
+                <p className="text-xs sm:text-sm text-slate-600">Showing {startItem} - {endItem} of {totalProducts}</p>
               </div>
             </div>
             {isAdmin && (

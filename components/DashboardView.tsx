@@ -155,42 +155,60 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       <div className="px-3 max-[360px]:px-2.5 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          {/* Stats - Mobile Compact */}
+          <div className="sm:hidden bg-white rounded-xl shadow-sm border border-slate-100 p-3">
+            <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
+              <div className="min-w-[110px] rounded-lg bg-blue-50 border border-blue-100 px-2.5 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-blue-700 font-semibold">Products</p>
+                <p className="text-lg max-[360px]:text-base font-bold text-slate-900 leading-tight">{totalItems}</p>
+              </div>
+              <div className="min-w-[130px] rounded-lg bg-emerald-50 border border-emerald-100 px-2.5 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-emerald-700 font-semibold">Value</p>
+                <p className="text-xs max-[360px]:text-[11px] font-bold text-slate-900 leading-tight break-words">{formatIDR(totalValue)}</p>
+              </div>
+              <div className="min-w-[130px] rounded-lg bg-purple-50 border border-purple-100 px-2.5 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-purple-700 font-semibold">Avg Cost</p>
+                <p className="text-xs max-[360px]:text-[11px] font-bold text-slate-900 leading-tight break-words">{formatIDR(avgCost)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats - Desktop */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Total Products Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <div className="p-2.5 sm:p-3 bg-blue-100 rounded-lg">
-                  <i className="fa-solid fa-boxes text-blue-600 text-lg sm:text-xl"></i>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <i className="fa-solid fa-boxes text-blue-600 text-xl"></i>
                 </div>
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Products</span>
               </div>
-              <p className="text-3xl max-[360px]:text-2xl sm:text-4xl font-bold text-slate-900 mb-1 leading-tight">{totalItems}</p>
-              <p className="text-xs sm:text-sm text-slate-500">Total items in inventory</p>
+              <p className="text-4xl font-bold text-slate-900 mb-1 leading-tight">{totalItems}</p>
+              <p className="text-sm text-slate-500">Total items in inventory</p>
             </div>
 
             {/* Total Value Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <div className="p-2.5 sm:p-3 bg-emerald-100 rounded-lg">
-                  <i className="fa-solid fa-wallet text-emerald-600 text-lg sm:text-xl"></i>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-emerald-100 rounded-lg">
+                  <i className="fa-solid fa-wallet text-emerald-600 text-xl"></i>
                 </div>
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Value</span>
               </div>
-              <p className="text-xl max-[360px]:text-lg sm:text-3xl font-bold text-slate-900 mb-1 leading-tight break-words">{formatIDR(totalValue)}</p>
-              <p className="text-xs sm:text-sm text-slate-500">Total inventory value</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1 leading-tight break-words">{formatIDR(totalValue)}</p>
+              <p className="text-sm text-slate-500">Total inventory value</p>
             </div>
 
             {/* Average Cost Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6 hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <div className="p-2.5 sm:p-3 bg-purple-100 rounded-lg">
-                  <i className="fa-solid fa-trending-up text-purple-600 text-lg sm:text-xl"></i>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <i className="fa-solid fa-trending-up text-purple-600 text-xl"></i>
                 </div>
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Cost</span>
               </div>
-              <p className="text-xl max-[360px]:text-lg sm:text-3xl font-bold text-slate-900 mb-1 leading-tight break-words">{formatIDR(avgCost)}</p>
-              <p className="text-xs sm:text-sm text-slate-500">Per item average</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1 leading-tight break-words">{formatIDR(avgCost)}</p>
+              <p className="text-sm text-slate-500">Per item average</p>
             </div>
           </div>
 
@@ -243,34 +261,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <p className="text-slate-400 text-sm">Start by importing your first inventory</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-100 max-h-[55vh] sm:max-h-96 overflow-y-auto">
+                    <div className="divide-y divide-slate-100 max-h-[60vh] sm:max-h-96 overflow-y-auto">
                       {sortedBrandCounts.map(([brand, count]) => {
                         const brandNote = getBrandNote(brand);
                         return (
                         <div
                           key={brand}
-                          className="px-4 sm:px-6 py-2.5 sm:py-3 hover:bg-slate-50 transition-colors flex items-center justify-between group"
+                          className="px-3 sm:px-6 py-2 sm:py-3 hover:bg-slate-50 transition-colors flex items-center justify-between group"
                         >
                           <button
                             onClick={() => onBrandClick(brand)}
                             className="text-left flex-1 min-w-0"
                           >
-                            <p className="font-semibold text-sm sm:text-base text-slate-900 hover:text-brand-600 transition-colors truncate">
+                            <p className="font-semibold text-xs sm:text-sm text-slate-900 hover:text-brand-600 transition-colors truncate leading-tight">
                               {brand}
                             </p>
                             {brandNote?.note?.trim() && (
-                              <div className="mt-0.5 flex items-center gap-2 min-w-0">
-                                <p className="text-[11px] sm:text-xs text-slate-500 line-clamp-1 min-w-0">
+                              <div className="mt-0.5 flex items-center gap-1.5 min-w-0">
+                                <p className="text-[10px] sm:text-[11px] text-slate-500 line-clamp-1 min-w-0 leading-tight">
                                   {brandNote.note}
                                 </p>
-                                <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                                <span className="text-[9px] sm:text-[10px] text-slate-400 whitespace-nowrap">
                                   • {formatDate(brandNote.updatedAt || brandNote.createdAt)}
                                 </span>
                               </div>
                             )}
                           </button>
-                          <div className="flex items-center gap-2 sm:gap-4 ml-3 sm:ml-4">
-                            <span className="text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 px-2.5 sm:px-3 py-1 rounded-full whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 sm:gap-4 ml-2 sm:ml-4">
+                            <span className="text-[11px] sm:text-sm font-medium text-slate-600 bg-slate-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
                               {count}
                             </span>
                             {isAdmin && (

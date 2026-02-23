@@ -1057,7 +1057,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 text-[13px] sm:text-base">
       <Navbar currentView={currentView} onChangeView={setCurrentView} />
       
       <main className="flex-1 mb-20 sm:mb-0">
