@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrandNote } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,7 +21,7 @@ interface DashboardViewProps {
   } | null;
 }
 
-export const DashboardView: React.FC<DashboardViewProps> = ({ 
+export const DashboardView: React.FC<DashboardViewProps> = ({
   totalProducts, 
   totalValue,
   brandCounts,
@@ -35,6 +35,39 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onAdjustBrandPrices,
   deleteBrandProgress,
 }) => {
+  useEffect(() => {
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'https://unpkg.com/@algolia/sitesearch@latest/dist/search.min.css';
+    document.head.appendChild(css);
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@algolia/sitesearch@latest/dist/search.min.js';
+    script.onload = () => {
+      // @ts-ignore
+      if (window.SiteSearch) {
+        // @ts-ignore
+        window.SiteSearch.init({
+          container: '#search',
+          applicationId: 'HN0IEWX1IB',
+          apiKey: '9e202d54f7890997dfebc593dae19751',
+          indexName: 'HARGA_MODAL',
+          attributes: {
+            primaryText: 'name',
+            secondaryText: 'brand',
+            tertiaryText: 'costPrice',
+            url: '',
+            image: ''
+          },
+          darkMode: false,
+        });
+      }
+    };
+    document.body.appendChild(script);
+    return () => {
+      document.head.removeChild(css);
+      document.body.removeChild(script);
+    };
+  }, []);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
   const [selectedBrandForNote, setSelectedBrandForNote] = useState<string | null>(null);
@@ -155,6 +188,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       <div className="px-3 max-[360px]:px-2.5 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
+          {/* Algolia Product Search - Quick Access */}
+          <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-4 sm:p-8 mb-6">
+            <div className="max-w-full overflow-x-auto">
+              <div id="search" />
+            </div>
+          </div>
           {/* Stats - Mobile Compact */}
           <div className="sm:hidden bg-white rounded-xl shadow-sm border border-slate-100 p-3">
             <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
@@ -264,6 +303,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <div className="divide-y divide-slate-100 max-h-[60vh] sm:max-h-96 overflow-y-auto">
                       {sortedBrandCounts.map(([brand, count]) => {
                         const brandNote = getBrandNote(brand);
+                        // Always show date if brandNote exists, even if note is empty
                         return (
                         <div
                           key={brand}
@@ -276,11 +316,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             <p className="font-semibold text-xs sm:text-sm text-slate-900 hover:text-brand-600 transition-colors truncate leading-tight">
                               {brand}
                             </p>
-                            {brandNote?.note?.trim() && (
+                            {brandNote && (
                               <div className="mt-0.5 flex items-center gap-1.5 min-w-0">
-                                <p className="text-[10px] sm:text-[11px] text-slate-500 line-clamp-1 min-w-0 leading-tight">
-                                  {brandNote.note}
-                                </p>
+                                {brandNote.note?.trim() && (
+                                  <p className="text-[10px] sm:text-[11px] text-slate-500 line-clamp-1 min-w-0 leading-tight">
+                                    {brandNote.note}
+                                  </p>
+                                )}
                                 <span className="text-[9px] sm:text-[10px] text-slate-400 whitespace-nowrap">
                                   • {formatDate(brandNote.updatedAt || brandNote.createdAt)}
                                 </span>

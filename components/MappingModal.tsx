@@ -20,6 +20,8 @@ export const MappingModal: React.FC<MappingModalProps> = ({ data, onConfirm, onC
     costFallbackFields: [],
     manualRetagByRow: {},
   });
+  const [isImporting, setIsImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -259,7 +261,7 @@ export const MappingModal: React.FC<MappingModalProps> = ({ data, onConfirm, onC
     toggleFallbackField('cost', quickFallbackColumn, true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!mapping.nameField || !mapping.costField) {
       alert("Please map the Product Name and Cost Price columns.");
       return;
@@ -268,12 +270,27 @@ export const MappingModal: React.FC<MappingModalProps> = ({ data, onConfirm, onC
       alert("Please enter a Brand Name for this price list.");
       return;
     }
-    onConfirm({
-      ...mapping,
-      nameFallbackFields: mapping.nameFallbackFields || [],
-      costFallbackFields: mapping.costFallbackFields || [],
-      manualRetagByRow: mapping.manualRetagByRow || {},
-    });
+    setIsImporting(true);
+    setImportMessage("Importing products to database. Please wait...");
+    try {
+      await Promise.resolve(onConfirm({
+        ...mapping,
+        nameFallbackFields: mapping.nameFallbackFields || [],
+        costFallbackFields: mapping.costFallbackFields || [],
+        manualRetagByRow: mapping.manualRetagByRow || {},
+      }));
+      setImportMessage("Import successful!");
+      setTimeout(() => {
+        setIsImporting(false);
+        setImportMessage(null);
+      }, 1200);
+    } catch (e) {
+      setImportMessage("Import failed. Please try again.");
+      setTimeout(() => {
+        setIsImporting(false);
+        setImportMessage(null);
+      }, 2000);
+    }
   };
 
   const SamplePreview = () => {
@@ -643,19 +660,48 @@ export const MappingModal: React.FC<MappingModalProps> = ({ data, onConfirm, onC
           )}
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
+        <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl min-h-[56px]">
           <button 
             onClick={onCancel}
             className="px-5 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition-colors"
+            disabled={isImporting}
           >
             Cancel
           </button>
-          <button 
+          <button
             onClick={handleSubmit}
-            className="px-6 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 shadow-md transition-colors"
+            className={`relative group inline-flex items-center justify-center px-7 py-3 bg-gradient-to-r from-brand-600 via-sky-500 to-brand-700 text-white font-semibold rounded-full shadow-lg transition-all duration-200 border-0 outline-none focus:ring-2 focus:ring-brand-400 focus:ring-offset-2 focus:ring-offset-white tracking-wide text-base hover:from-brand-700 hover:to-brand-800 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${isImporting ? '' : 'hover:shadow-xl'}`}
+            style={{ minWidth: 180, minHeight: 48, letterSpacing: '0.02em' }}
+            disabled={isImporting}
+            type="button"
           >
-            Import Database
+            {isImporting ? (
+              <>
+                <span className="w-5 h-5 inline-block align-middle relative mr-3">
+                  <span className="absolute inset-0 rounded-full border-2 border-brand-200"></span>
+                  <span className="absolute inset-0 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                </span>
+                <span className="font-semibold tracking-wide">Importing...</span>
+              </>
+            ) : (
+              <>
+                <span className="mr-2 text-lg">
+                  <i className="fa-solid fa-database"></i>
+                </span>
+                <span className="font-semibold tracking-wide">Import Database</span>
+              </>
+            )}
           </button>
+          {importMessage && (
+            <div className="flex items-center gap-2 ml-4 text-sm">
+              {isImporting ? (
+                <i className="fa-solid fa-spinner animate-spin text-brand-600"></i>
+              ) : (
+                <i className="fa-solid fa-check-circle text-green-600"></i>
+              )}
+              <span>{importMessage}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

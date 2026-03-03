@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
-import { UploadView } from './components/UploadView';
+import UploadView from './components/UploadView';
 import { MappingModal } from './components/MappingModal';
 import { InventoryView } from './components/InventoryView';
 import { DashboardView } from './components/DashboardView';
@@ -712,7 +712,34 @@ const App: React.FC = () => {
     }
   };
 
-  const handleExtractionComplete = (data: RawExtractionItem[]) => {
+  // If Excel, data will be in the format [{product, cost, srp}], otherwise RawExtractionItem[]
+  const handleExtractionComplete = (data: RawExtractionItem[] | {product: string, cost: string|number, srp?: string|number}[]) => {
+    // Detect Excel: if first row has 'product' and 'cost' keys, treat as Excel
+    if (Array.isArray(data) && data.length > 0 && Object.prototype.hasOwnProperty.call(data[0], 'product') && Object.prototype.hasOwnProperty.call(data[0], 'cost')) {
+      // Use brand from ExcelUpload (row.brand)
+      const formatted = (data as {product: string, cost: string|number, srp?: string|number, brand?: string}[])
+        .filter(row => row.product && row.cost)
+        .map(row => ({
+          name: String(row.product),
+          costPrice: typeof row.cost === 'number' ? row.cost : parseInt(String(row.cost).replace(/[^0-9]/g, ''), 10) || 0,
+          srpPrice: row.srp ? (typeof row.srp === 'number' ? row.srp : parseInt(String(row.srp).replace(/[^0-9]/g, ''), 10) || 0) : 0,
+          brand: row.brand ? String(row.brand) : '',
+          rawJson: row
+        }));
+      (async () => {
+        try {
+          for (const prod of formatted) {
+            await handleAddProduct(prod);
+          }
+          alert(`Imported ${formatted.length} products from Excel.`);
+          setCurrentView(AppView.INVENTORY);
+        } catch (e) {
+          alert('Failed to import Excel data.');
+        }
+      })();
+      return;
+    }
+    // Otherwise, show mapping modal for PDF/image/text
     setExtractedData(data);
     setShowMappingModal(true);
   };
@@ -791,15 +818,16 @@ const App: React.FC = () => {
       };
     }).filter(p => p.name && p.costPrice > 0);
 
-    // Create a map of existing products for fast lookup (Case insensitive)
+    // Create a map of existing products for fast lookup by name+brand (case-insensitive)
     // This is only fetched during import to avoid loading all products in normal browsing.
     const allProductsSnapshot = await getDocs(collection(db, 'products'));
     const existingProductMap = new Map<string, Product>();
     allProductsSnapshot.docs.forEach(itemDoc => {
       const data = itemDoc.data();
       const name = typeof data.name === 'string' ? data.name.toLowerCase().trim() : '';
-      if (!name) return;
-      existingProductMap.set(name, {
+      const brand = formatBrandName(data.brand);
+      if (!name || !brand) return;
+      existingProductMap.set(`${name}|||${brand}`, {
         id: itemDoc.id,
         name: data.name,
         brand: data.brand,
@@ -811,11 +839,11 @@ const App: React.FC = () => {
     try {
       // Loop through incoming items and queue batch operations
       for (const newItem of incomingItems) {
-        const key = newItem.name.toLowerCase().trim();
+        const key = `${newItem.name.toLowerCase().trim()}|||${newItem.brand}`;
         const existingProduct = existingProductMap.get(key);
 
         if (existingProduct) {
-          // UPDATE existing
+          // UPDATE existing (name+brand match)
           const ref = doc(db, 'products', existingProduct.id);
           batch.update(ref, {
             costPrice: newItem.costPrice,
@@ -884,14 +912,19 @@ const App: React.FC = () => {
   
   const handleAddProduct = async (newProductData: { name: string; brand: string; costPrice: number; srpPrice?: number }) => {
     try {
-      const normalizedName = newProductData.name.trim();
+      const normalizedName = newProductData.name.trim().toLowerCase();
       const formattedBrandName = formatBrandName(newProductData.brand);
-      const duplicateCheckQuery = query(collection(db, 'products'), where('name', '==', normalizedName), limit(1));
-      const duplicateCheckSnapshot = await getDocs(duplicateCheckQuery);
-      const existingDoc = duplicateCheckSnapshot.docs[0];
+      // Fetch all products with the same name (case-insensitive)
+      const productsSnapshot = await getDocs(query(collection(db, 'products')));
+      const existingDoc = productsSnapshot.docs.find(docSnap => {
+        const data = docSnap.data();
+        const docName = (data.name || '').trim().toLowerCase();
+        const docBrand = formatBrandName(data.brand);
+        return docName === normalizedName && docBrand === formattedBrandName;
+      });
 
       if (existingDoc) {
-        // Update existing if name matches
+        // Update existing if name and brand match
         const ref = doc(db, 'products', existingDoc.id);
         await updateDoc(ref, {
           costPrice: newProductData.costPrice,
