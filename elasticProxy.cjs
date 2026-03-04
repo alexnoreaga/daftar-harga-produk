@@ -6,9 +6,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const ELASTICSEARCH_URL = process.env.ELASTICSEARCH_URL || 'https://my-elasticsearch-project-c4a430.es.asia-southeast1.gcp.elastic.cloud:443';
-const ELASTICSEARCH_API_KEY = process.env.ELASTICSEARCH_API_KEY || 'UkdsRGpwd0J3NHBLZ2VtOHJUdTA6OHJ4ZWJzTEpKV2czeDAwWTFTcy0tUQ==';
-const ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX || 'products';
+const ELASTICSEARCH_URL = process.env.ELASTICSEARCH_URL;
+const ELASTICSEARCH_API_KEY = process.env.ELASTICSEARCH_API_KEY;
+const ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX;
 
 app.post('/api/search', async (req, res) => {
   try {

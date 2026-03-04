@@ -3,7 +3,9 @@
 
 const admin = require('firebase-admin');
 const { getFirestore } = require('firebase-admin/firestore');
-const serviceAccount = require('./harga-modal-firebase-adminsdk-fbsvc-9999863e3d.json');
+const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+if (!serviceAccountPath) throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH env variable required');
+const serviceAccount = require(serviceAccountPath);
 // --- CONFIG ---
 // Initialize Firebase Admin with service account
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });

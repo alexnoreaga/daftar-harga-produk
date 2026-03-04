@@ -48,9 +48,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         // @ts-ignore
         window.SiteSearch.init({
           container: '#search',
-          applicationId: 'HN0IEWX1IB',
-          apiKey: '9e202d54f7890997dfebc593dae19751',
-          indexName: 'HARGA_MODAL',
+          applicationId: import.meta.env.VITE_ALGOLIA_APP_ID,
+          apiKey: import.meta.env.VITE_ALGOLIA_API_KEY,
+          indexName: import.meta.env.VITE_ALGOLIA_INDEX_NAME,
           attributes: {
             primaryText: 'name',
             secondaryText: 'brand',
