@@ -15,14 +15,57 @@ const UploadView: React.FC<UploadViewProps> = ({ onExtractionComplete }) => {
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Dummy handler for file upload (replace with actual logic)
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // ...file handling logic
+  // File upload handler (image/pdf)
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsBusy(true);
+    setStatus({ state: 'processing', message: 'Uploading and extracting file...' });
+    try {
+      // Read file as base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        try {
+          // Extract base64 string (remove data:mime/type;base64,)
+          const base64 = (reader.result as string).split(',')[1];
+          // Dynamically import geminiService
+          const { geminiService } = await import('../services/geminiService');
+          const items = await geminiService.processImage(base64, file.type);
+          setStatus({ state: 'complete', message: `Extracted ${items.length} products.` });
+          setIsBusy(false);
+          onExtractionComplete(items);
+        } catch (err: any) {
+          setStatus({ state: 'error', message: err.message || 'Extraction failed.' });
+          setIsBusy(false);
+        }
+      };
+      reader.onerror = () => {
+        setStatus({ state: 'error', message: 'Failed to read file.' });
+        setIsBusy(false);
+      };
+    } catch (err: any) {
+      setStatus({ state: 'error', message: err.message || 'File upload failed.' });
+      setIsBusy(false);
+    }
   };
 
-  // Dummy handler for text parsing (replace with actual logic)
-  const processTextList = () => {
-    // ...text parsing logic
+  // Text import handler
+  const processTextList = async () => {
+    if (!rawText.trim()) return;
+    setIsBusy(true);
+    setStatus({ state: 'processing', message: 'Extracting and beautifying product names...' });
+    try {
+      // Dynamically import geminiService
+      const { geminiService } = await import('../services/geminiService');
+      const items = await geminiService.processMessyTextList(rawText);
+      setStatus({ state: 'complete', message: `Extracted ${items.length} products.` });
+      setIsBusy(false);
+      onExtractionComplete(items);
+    } catch (err: any) {
+      setStatus({ state: 'error', message: err.message || 'Text extraction failed.' });
+      setIsBusy(false);
+    }
   };
 
   return (
