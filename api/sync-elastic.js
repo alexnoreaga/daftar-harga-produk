@@ -11,7 +11,10 @@ export default async function handler(req, res) {
   }
 
   // Load service account JSON
-  const serviceAccountPath = path.join(process.cwd(), 'harga-modal-firebase-adminsdk-fbsvc-9999863e3d.json');
+  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+  if (!serviceAccountPath) {
+    return res.status(500).json({ error: 'FIREBASE_SERVICE_ACCOUNT_PATH env variable not set' });
+  }
   let serviceAccount;
   try {
     const file = await fs.readFile(serviceAccountPath, 'utf8');
