@@ -20,76 +20,122 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onChangeView }) => 
 
   return (
     <>
-      {/* Header - Desktop & Mobile */}
-      <header className="bg-dark-900 text-white shadow-lg sticky top-0 z-40">
-        <div className="px-3 py-2.5 sm:px-6 sm:py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-base sm:text-2xl font-bold text-brand-500 tracking-wide sm:tracking-wider flex items-center gap-1.5 sm:gap-2">
-              <i className="fa-solid fa-camera-retro"></i>
-              <span>Daftar Harga Produk</span>
-            </h1>
-            <p className="text-xs text-gray-400 hidden sm:block">Daftar harga produk per merek</p>
+      {/* Header */}
+      <header
+        className="sticky top-0 z-40"
+        style={{
+          backgroundColor: 'rgba(9,9,11,0.85)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(14,165,233,0.12)',
+        }}
+      >
+        <div className="px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+                boxShadow: '0 0 16px rgba(14,165,233,0.5), 0 0 32px rgba(14,165,233,0.2)',
+              }}
+            >
+              <i className="fa-solid fa-camera-retro text-white text-xs"></i>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white tracking-tight leading-none">Daftar Harga</p>
+              <p className="text-[10px] text-zinc-500 leading-none mt-0.5 hidden sm:block">per merek</p>
+            </div>
           </div>
-          <div className="flex items-center gap-3 text-sm">
-            <div className="hidden sm:flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-white font-medium">{currentUser?.email}</p>
-                <p className="text-xs">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                    isAdmin ? 'bg-brand-500 text-white' : 'bg-gray-600 text-gray-200'
-                  }`}>
-                    {isAdmin ? 'Admin' : 'Staff'}
-                  </span>
-                </p>
+
+          {/* Desktop Nav */}
+          <nav className="hidden sm:flex items-center gap-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onChangeView(item.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  currentView === item.id
+                    ? 'text-sky-400'
+                    : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/60'
+                }`}
+                style={currentView === item.id ? {
+                  background: 'rgba(14,165,233,0.1)',
+                  boxShadow: '0 0 14px rgba(14,165,233,0.2), inset 0 0 10px rgba(14,165,233,0.05)',
+                } : {}}
+              >
+                <i className={`fa-solid ${item.icon} text-xs`}></i>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          {/* User + Logout */}
+          <div className="flex items-center gap-2">
+            <div
+              className="hidden sm:flex items-center gap-2.5 rounded-lg px-3 py-1.5"
+              style={{
+                background: 'rgba(24,24,27,0.8)',
+                border: '1px solid rgba(63,63,70,0.6)',
+              }}
+            >
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: 'rgba(14,165,233,0.15)', border: '1px solid rgba(14,165,233,0.2)' }}
+              >
+                <i className="fa-solid fa-user text-sky-400 text-[8px]"></i>
               </div>
+              <span className="text-xs text-zinc-300 font-medium max-w-[140px] truncate">{currentUser?.email}</span>
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                style={isAdmin
+                  ? { background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }
+                  : { background: 'rgba(63,63,70,0.6)', color: '#a1a1aa' }
+                }
+              >
+                {isAdmin ? 'Admin' : 'Staff'}
+              </span>
             </div>
             <button
               onClick={() => logout()}
-              className="p-2 hover:bg-dark-800 rounded-lg transition-colors text-gray-400 hover:text-white"
               title="Logout"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-400/10 transition-all duration-150"
             >
-              <i className="fa-solid fa-arrow-right-from-bracket"></i>
+              <i className="fa-solid fa-arrow-right-from-bracket text-sm"></i>
             </button>
           </div>
         </div>
       </header>
 
       {/* Bottom Navigation - Mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-dark-900 text-white border-t border-dark-800 z-50 sm:hidden">
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 sm:hidden"
+        style={{
+          backgroundColor: 'rgba(9,9,11,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(14,165,233,0.1)',
+        }}
+      >
         <div className="flex">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onChangeView(item.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-2 transition-colors duration-200 ${
-                currentView === item.id
-                  ? 'text-brand-500 bg-dark-800'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-              title={item.label}
+              className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 transition-all duration-150"
+              style={currentView === item.id
+                ? { color: '#38bdf8' }
+                : { color: '#52525b' }
+              }
             >
-              <i className={`fa-solid ${item.icon} text-lg mb-0.5`}></i>
-              <span className="text-[11px] font-semibold leading-tight">{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
-
-      {/* Top Navigation - Desktop */}
-      <nav className="hidden sm:block bg-dark-900 text-white border-b border-dark-800 sticky top-16 z-40">
-        <div className="px-6 flex">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onChangeView(item.id)}
-              className={`flex items-center gap-2 px-6 py-3 transition-colors duration-200 border-b-2 ${
-                currentView === item.id
-                  ? 'border-brand-500 text-brand-500'
-                  : 'border-transparent text-gray-400 hover:text-white'
-              }`}
-            >
-              <i className={`fa-solid ${item.icon}`}></i>
-              <span className="font-medium">{item.label}</span>
+              {currentView === item.id && (
+                <span
+                  className="absolute top-0 w-8 h-0.5 rounded-b-full"
+                  style={{ background: 'linear-gradient(90deg, transparent, #0ea5e9, transparent)' }}
+                />
+              )}
+              <i className={`fa-solid ${item.icon} text-base`}></i>
+              <span className="text-[10px] font-semibold">{item.label}</span>
             </button>
           ))}
         </div>
