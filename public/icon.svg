@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="60%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <linearGradient id="accent2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softglow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- App background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Ambient glow blob -->
+  <ellipse cx="256" cy="220" rx="160" ry="130" fill="#0ea5e9" opacity="0.06"/>
+  <ellipse cx="300" cy="320" rx="100" ry="80" fill="#818cf8" opacity="0.04"/>
+
+  <!-- Top highlight line -->
+  <path d="M112 2 Q256 0 400 2" stroke="#38bdf8" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+
+  <!-- Price tag shape (centered) -->
+  <g filter="url(#glow)" transform="translate(256, 250)">
+    <!-- Tag body -->
+    <path d="M-92,-115 L92,-115 L92,52 L0,120 L-92,52 Z"
+          fill="rgba(14,165,233,0.07)"
+          stroke="url(#accent)"
+          stroke-width="9"
+          stroke-linejoin="round"/>
+
+    <!-- Tag inner subtle fill line at top -->
+    <path d="M-92,-115 L92,-115"
+          stroke="url(#accent)"
+          stroke-width="3"
+          opacity="0.4"/>
+
+    <!-- Hole at top -->
+    <circle cx="0" cy="-85" r="17"
+            fill="#09090b"
+            stroke="url(#accent)"
+            stroke-width="8"/>
+
+    <!-- "Rp" text -->
+    <text x="0" y="34"
+          text-anchor="middle"
+          font-family="'Arial Black', 'Arial Bold', Arial, sans-serif"
+          font-size="92"
+          font-weight="900"
+          letter-spacing="-2"
+          fill="url(#accent2)">Rp</text>
+  </g>
+
+  <!-- Bottom corner accent dots -->
+  <circle cx="148" cy="440" r="4" fill="#38bdf8" opacity="0.25"/>
+  <circle cx="164" cy="440" r="4" fill="#818cf8" opacity="0.18"/>
+  <circle cx="180" cy="440" r="4" fill="#818cf8" opacity="0.10"/>
+</svg>
